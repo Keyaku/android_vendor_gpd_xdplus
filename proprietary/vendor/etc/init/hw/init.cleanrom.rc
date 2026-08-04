@@ -1,0 +1,5 @@
+service initcleanrom /system/bin/sh /vendor/bin/hw/initcleanrom.sh
+	class main
+	user root
+	seclabel u:r:initcleanrom:s0
+	oneshot

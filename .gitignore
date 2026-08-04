@@ -1,0 +1,6 @@
+*.o
+*.pyc
+__pycache__/
+
+# baked by build_vendor_image.sh
+vendor.img
