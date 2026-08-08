@@ -26,7 +26,8 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 SRC="$HERE/proprietary/vendor"
 FS_CONFIG="$HERE/vendor_fs_config"
 FILE_CONTEXTS="$HERE/vendor_file_contexts"
-UNLABELLED="$HERE/vendor_unlabelled.txt"
+# vendor_unlabelled.txt is gone: the ten paths it listed are labelled in
+# vendor_file_contexts now. See the block above the bake for why.
 
 # Partition geometry of mmcblk0p23, taken from the OEM image. Inode count and
 # inode size are matched exactly so the result lands on the same inode layout.
@@ -62,7 +63,7 @@ fi
 for t in e2fsdroid mke2fs debugfs e2fsck; do
 	command -v "$t" >/dev/null || { echo "ERROR: $t not found (build the host tools, or set XDROOT)" >&2; exit 2; }
 done
-for f in "$SRC" "$FS_CONFIG" "$FILE_CONTEXTS" "$UNLABELLED"; do
+for f in "$SRC" "$FS_CONFIG" "$FILE_CONTEXTS"; do
 	[ -e "$f" ] || { echo "ERROR: missing $f" >&2; exit 2; }
 done
 
@@ -79,13 +80,27 @@ while read -r d; do
 	mkdir -p "$STAGE/$d"
 done < "$HERE/vendor_empty_dirs.txt"
 
-# e2fsdroid aborts if a path matches no file_contexts entry, but 10 paths carry no
-# security.selinux xattr in the OEM image at all (verified present in the untouched
-# stock dump too -- this is ALLDOCUBE's original state, not damage from our
-# debugfs edits). Bake with a catch-all so e2fsdroid is satisfied, then strip the
-# label back off those 10 so the result reproduces the OEM image exactly.
+# DELIBERATE DIVERGENCE FROM THE OEM IMAGE, and the one thing this bake does not
+# reproduce byte-for-byte. Ten paths carry no security.selinux xattr in the OEM
+# image at all -- ALLDOCUBE's own state, present in the untouched stock dump too,
+# not damage from our debugfs edits. Earlier bakes reproduced that by baking with
+# a catch-all and then stripping the label back off those ten.
+#
+# That state is only survivable under permissive. An unlabelled file is
+# u:object_r:unlabeled:s0, and init is granted create/read/write on unlabeled but
+# NOT execute (system/sepolicy/public/init.te), so under enforcing every service
+# built from those binaries fails to exec -- graphics composer and allocator among
+# them, i.e. no SurfaceFlinger. Even today, permissive, the effect is visible:
+# `ps -A -Z` shows all seven running in u:r:init:s0, never domain-transitioning,
+# because there is no exec label to transition on.
+#
+# So they are labelled now. Seven of the eight binaries take the label the OEM's
+# own /vendor/etc/selinux/nonplat_file_contexts assigns them (the OEM wrote the
+# policy and then shipped an image that does not match it); build.prop follows its
+# sibling default.prop, and nonplat_service_contexts takes the type the Android 11
+# platform file_contexts assigns that exact path. All eight hal_*_exec types are
+# defined in nonplat_sepolicy.cil, so they resolve at policy-load time.
 cp "$FILE_CONTEXTS" "$WORK/fc"
-echo '/vendor(/.*)? u:object_r:vendor_file:s0' >> "$WORK/fc"
 
 rm -f "$OUT"
 echo "baking $OUT from $SRC ..."
@@ -110,7 +125,6 @@ for sb in 1024 $(dumpe2fs "$OUT" 2>/dev/null | sed -n 's/.*Backup superblock at 
 done
 
 {
-	while read -r p; do [ -n "$p" ] && echo "ea_rm $p security.selinux"; done < "$UNLABELLED"
 	# mke2fs creates lost+found itself and e2fsdroid leaves its ownership alone.
 	echo "sif /lost+found uid 0"
 	echo "sif /lost+found gid 2000"
