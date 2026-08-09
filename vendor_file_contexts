@@ -6,7 +6,7 @@
 /vendor/bin/acpi u:object_r:vendor_file:s0
 /vendor/bin/auto_shutdown\.sh u:object_r:vendor_file:s0
 /vendor/bin/autobt u:object_r:vendor_file:s0
-/vendor/bin/autokd u:object_r:vendor_file:s0
+/vendor/bin/autokd u:object_r:autokd_exec:s0
 /vendor/bin/base64 u:object_r:vendor_file:s0
 /vendor/bin/basename u:object_r:vendor_file:s0
 /vendor/bin/blockdev u:object_r:vendor_file:s0
