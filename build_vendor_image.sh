@@ -102,6 +102,28 @@ done < "$HERE/vendor_empty_dirs.txt"
 # defined in nonplat_sepolicy.cil, so they resolve at policy-load time.
 cp "$FILE_CONTEXTS" "$WORK/fc"
 
+# This port's own vendor policy rules, appended to the OEM's CIL at bake time.
+#
+# init loads exactly ONE vendor CIL, so the rules have to end up inside
+# nonplat_sepolicy.cil -- but the OEM file stays byte-identical in git, and the
+# addendum stays readable on its own, by concatenating here instead of editing
+# the blob. secilc compiles plat, mapping, system_ext and this file together at
+# boot, so rules naming a system_ext domain (our OMX HAL) resolve fine.
+#
+# They cannot live in device/gpd/xdplus/sepolicy: every type they target
+# (dri_device, render_device, Vcodec_device, mtk_cmdq_device, debugfs_ion, the
+# MTK engineering-mode property types) is declared in this CIL, which the build
+# never sees -- naming one there fails with `unknown type`.
+#
+# ⚠️ Not cosmetic: without them the codecs do not work under enforcement at all.
+# `screenrecord` exits 235 with a zero-byte file and video playback stalls in
+# the decoder, while both succeed under permissive.
+cat "$HERE/xdplus_sepolicy_addendum.cil" >> "$STAGE/etc/selinux/nonplat_sepolicy.cil"
+
+# The precompiled policy that ships beside it no longer matches, which is fine
+# and already the case: init logs "Failed to read ... .sha256" and compiles the
+# CIL set at every boot on this device.
+
 rm -f "$OUT"
 echo "baking $OUT from $SRC ..."
 # mke2fs + e2fsdroid are driven directly rather than through mkuserimg_mke2fs,

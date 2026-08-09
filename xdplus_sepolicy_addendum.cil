@@ -1,0 +1,48 @@
+
+; --- GPD XD+ addendum -------------------------------------------------------
+; The OMX HAL is served from /system on this port (the vendor blob set has no
+; system-side OMX service), so its domain is declared in the system_ext policy.
+; These rules cannot live there: every target type below is declared in this
+; file, which is loaded at runtime, so naming them at build time fails with
+; `unknown type`. secilc compiles plat, mapping, system_ext and this file
+; together at boot, so the cross-reference resolves here.
+;
+; Not cosmetic: without them `screenrecord` fails outright under enforcement
+; (exit 235, zero-byte file) while succeeding under permissive.
+(allow hal_omx_xdplus dri_device (chr_file (read write open ioctl getattr map lock)))
+(allow hal_omx_xdplus render_device (chr_file (read write open ioctl getattr map lock)))
+(allow hal_omx_xdplus debugfs_ion (dir (search)))
+(allow hal_omx_xdplus mtk_em_video_log_omx_prop (file (read open getattr map)))
+; The GED bridge, same reason: proc_ged is declared here. The OEM grants this to
+; its own mediacodec domain, which this port replaced with a system-side one.
+(allow hal_omx_xdplus proc_ged (file (read write open getattr ioctl map)))
+; /dev/Vcodec, the MTK video codec device itself -- the encoder returns -38
+; without it.
+(allow hal_omx_xdplus Vcodec_device (chr_file (read write open ioctl getattr map lock)))
+; CMDQ (the display/codec command queue) and the /proc entries the components
+; read for their own tuning.
+(allow hal_omx_xdplus mtk_cmdq_device (chr_file (read write open ioctl getattr map lock)))
+; /proc/m4u is the MTK IOMMU control node and carries no label of its own, so
+; this is the generic proc type. ioctl is the point of it (ioctlcmd 0x671a);
+; the GED 'g' page is already whitelisted for xperm in the system_ext policy.
+; Deliberately not relabelled via genfscon: the vendor blobs reach /proc/m4u
+; through this same generic type, and moving it would break them instead.
+(allow hal_omx_xdplus proc (file (read open getattr map ioctl)))
+; The MTK engineering-mode video switches. They are read on every component
+; init; each is its own property type, so they are listed rather than matched.
+(allow hal_omx_xdplus mtk_em_video_venc_h264_prop (file (read open getattr map)))
+(allow hal_omx_xdplus mtk_em_video_log_acodec_prop (file (read open getattr map)))
+(allow hal_omx_xdplus mtk_em_video_log_sf_postbuffer_prop (file (read open getattr map)))
+(allow hal_omx_xdplus mtk_em_video_log_vdec_prop (file (read open getattr map)))
+(allow hal_omx_xdplus mtk_em_video_log_svp_prop (file (read open getattr map)))
+(allow hal_omx_xdplus mtk_em_video_log_mjc_prop (file (read open getattr map)))
+
+; Decode path. The OMX service is handed graphics buffers by the vendor
+; allocator, and any app that plays video reaches the render node and the ION
+; debugfs directory directly through the blob stack. hal_graphics_allocator_default,
+; render_device and debugfs_ion are all declared in this file, which is why
+; these rules cannot live in the system_ext policy either.
+(allow hal_omx_xdplus hal_graphics_allocator_default (fd (use)))
+(allow gallery_app render_device (chr_file (read write open ioctl getattr map)))
+(allow gallery_app debugfs_ion (dir (search)))
+(allow mediaserver debugfs_ion (dir (search)))
