@@ -12,7 +12,7 @@ ro.vendor.build.date.utc=1784545014
 # and every consumer skips empty fingerprints by design.
 ro.vendor.build.fingerprint=
 # What this partition actually is. Free-form and uncompared, unlike the above.
-ro.vendor.xdplus.blobs=ALLDOCUBE U1005E 8.1 (PowerVR DDK 1.9@4893595), camera-stripped, hwc acqfd-patched
+ro.vendor.xdplus.blobs=ALLDOCUBE U1005E 8.1 (PowerVR DDK 1.9@4893595), camera-stripped, hwc acqfd-patched, sensor-list-patched
 # Bumped whenever this partition gains something the system side depends on.
 # device/gpd/xdplus/releasetools.py asserts on it so an OTA cannot half-apply.
 ro.vendor.xdplus.rev=1
