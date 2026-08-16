@@ -567,6 +567,7 @@ vendor/lib64/hw/gatekeeper.mt8173.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/gralloc.default.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/gralloc.mt8173.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/hwcomposer.mt8173.so 0 0 644 capabilities=0x0
+vendor/lib64/hw/hwcomposer.xdplus.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/keystore.mt8173.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/kmsetkey.mt8173.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/libSoftGatekeeper.so 0 0 644 capabilities=0x0
