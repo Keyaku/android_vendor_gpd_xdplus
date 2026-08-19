@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- This is the standard feature indicating that the device includes WiFi Direct. -->
+<!-- Wi-Fi Direct disabled: the MTK combo driver does not expose p2p0 at boot,
+     and starting wpa_supplicant with -N -ip2p0 aborts before STA comes up. -->
 <permissions>
-    <feature name="android.hardware.wifi.direct" />
 </permissions>

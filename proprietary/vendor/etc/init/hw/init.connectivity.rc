@@ -65,18 +65,21 @@ service mnld /vendor/bin/mnld
 #    class main
 
 # Wlan
+# The P2P secondary interface is removed: this MTK driver/firmware combination
+# does not expose p2p0 until P2P is actively used, and starting wpa_supplicant
+# with -N -ip2p0 makes the process exit before STA can come up.
 service wpa_supplicant /vendor/bin/hw/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/vendor/etc/wifi/wpa_supplicant_overlay.conf -N \
-    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin \
-    -I/vendor/etc/wifi/p2p_supplicant_overlay.conf \
+    -I/vendor/etc/wifi/wpa_supplicant_overlay.conf \
     -O/data/misc/wifi/sockets -g@android:wpa_wlan0
-    #   we will start as root and wpa_supplicant will switch to user wifi
-    #   after setting up the capabilities required for WEXT
-    #   user wifi
-    #   group wifi inet keystore
+    interface android.hardware.wifi.supplicant@1.0::ISupplicant default
+    interface android.hardware.wifi.supplicant@1.1::ISupplicant default
+    interface android.hardware.wifi.supplicant@1.2::ISupplicant default
+    interface android.hardware.wifi.supplicant@1.3::ISupplicant default
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
+    # Run as root: this binary has no ambient capabilities, and nl80211 needs
+    # CAP_NET_ADMIN to bring wlan0 up. The upstream MTK/Goldfish .rc does the same.
     disabled
     oneshot
 
