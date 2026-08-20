@@ -52,10 +52,10 @@
 /vendor/bin/gunzip u:object_r:vendor_file:s0
 /vendor/bin/gzip u:object_r:vendor_file:s0
 /vendor/bin/head u:object_r:vendor_file:s0
-/vendor/bin/hostapd u:object_r:hostapd_exec:s0
 /vendor/bin/hostapd_cli u:object_r:vendor_file:s0
 /vendor/bin/hostname u:object_r:vendor_file:s0
 /vendor/bin/hw u:object_r:vendor_file:s0
+/vendor/bin/hw/hostapd u:object_r:hostapd_exec:s0
 /vendor/bin/hw/android\.hardware\.audio@2\.0-service-mediatek u:object_r:mtk_hal_audio_exec:s0
 /vendor/bin/hw/android\.hardware\.bluetooth@1\.0-service-mediatek u:object_r:mtk_hal_bluetooth_exec:s0
 /vendor/bin/hw/android\.hardware\.broadcastradio@1\.1-service u:object_r:hal_broadcastradio_default_exec:s0
