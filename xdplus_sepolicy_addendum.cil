@@ -46,3 +46,67 @@
 (allow gallery_app render_device (chr_file (read write open ioctl getattr map)))
 (allow gallery_app debugfs_ion (dir (search)))
 (allow mediaserver debugfs_ion (dir (search)))
+
+; Sensors HAL. The OEM vendor CIL declares mtk_hal_sensors but does not grant
+; access to /dev/input/event*, and the platform hal_sensors_default rule does not
+; cover this vendor domain. Under enforcing the denial crashes SensorService.
+(allow mtk_hal_sensors input_device (dir (open getattr read search ioctl lock watch watch_reads)))
+(allow mtk_hal_sensors input_device (chr_file (ioctl read getattr lock map open watch watch_reads)))
+
+; initcleanrom. The OEM vendor CIL declares the domain and its exec type, but the
+; service runs a shell script that needs shell/toolbox execution plus access to
+; nvdata, sysfs and /cache/recovery to set up headphone-jack polarity, gamepad
+; mode, CPU freq permissions and recovery command path.
+(allow initcleanrom shell_exec (file (read getattr execute execute_no_trans entrypoint open)))
+(allow initcleanrom toolbox_exec (file (read getattr execute execute_no_trans open)))
+(allow initcleanrom nvdata_file (dir (open getattr read search add_name write setattr)))
+(allow initcleanrom nvdata_file (file (create open read write getattr setattr)))
+(allow initcleanrom initcleanrom (capability (fowner fsetid chown)))
+(allow initcleanrom sysfs (dir (search)))
+(allow initcleanrom sysfs (file (open read write getattr setattr)))
+; initcleanrom adjusts CPU scaling limits for the big cluster.
+(allow initcleanrom sysfs_devices_system_cpu (file (open read write getattr setattr)))
+(allow initcleanrom graphics_device (chr_file (getattr setattr)))
+(allow initcleanrom cache_file (dir (search getattr add_name write remove_name)))
+(allow initcleanrom cache_file (file (create open read write getattr setattr unlink)))
+(allow initcleanrom cache_recovery_file (dir (search getattr add_name write remove_name setattr)))
+(allow initcleanrom cache_recovery_file (file (create open read write getattr setattr unlink)))
+
+; GED event notify debugfs node is declared in the OEM vendor CIL; the composer
+; writes it on this device.
+(allow hal_graphics_composer_default debugfs_ged (file (open read write getattr)))
+
+; Composer and surfaceflinger read /sys/devices/virtual/BOOT/BOOT/boot/boot_mode.
+; surfaceflinger is a platform domain and is handled in device-side policy;
+; composer is a vendor domain and can only be referenced here.
+(allow hal_graphics_composer_default sysfs (dir (open getattr read search ioctl lock watch watch_reads)))
+(allow hal_graphics_composer_default sysfs (file (ioctl read getattr lock map open watch watch_reads)))
+
+; SurfaceFlinger reads the composer's /proc/<pid>/cmdline under enforcement.
+; The target domain is declared in this vendor policy, so the allow belongs here.
+(allow surfaceflinger hal_graphics_composer_default (file (read open getattr)))
+
+; The composer sets ro.sf.lcd_density from a vendor property context and reads
+; the xdplus device-specific properties declared in system_ext policy.
+(allow hal_graphics_composer_default exported3_default_prop (property_service (set)))
+(allow hal_graphics_composer_default xdplus_prop (file (read open getattr map)))
+
+; The vendor audio HAL passes a FIFO to audioserver; the HAL domain needs write.
+(allow mtk_hal_audio audioserver (fifo_file (write)))
+
+; The Wi-Fi driver firmware loader runs in the kernel domain and needs dac_override
+; to access its firmware nodes under /data/misc.
+(allow kernel kernel (capability (dac_override)))
+
+; The autokd calibration daemon has its own exec label; it reads /vendor/nvdata
+; for the fstab and calibration data, updates the SDIO calibration file, and
+; reads its per-device calibration record from /data.
+(allow autokd nvdata_file (dir (open getattr read search)))
+(allow autokd nvdata_file (file (open read write getattr)))
+(allow autokd system_data_root_file (dir (search open read getattr)))
+(allow autokd system_data_file (file (read open getattr)))
+; autokd signals completion through a system property after reading calibration.
+(allow autokd self (tcp_socket (create)))
+(allow autokd property_socket (sock_file (write)))
+(allow autokd init (unix_stream_socket (connectto)))
+(allow autokd system_prop (property_service (set)))

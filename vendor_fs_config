@@ -211,6 +211,7 @@ vendor/build.prop 0 0 600 capabilities=0x0
 vendor/compatibility_matrix.xml 0 0 644 capabilities=0x0
 vendor/default.prop 0 0 600 capabilities=0x0
 vendor/etc 0 2000 755 capabilities=0x0
+vendor/etc/cgroups.json 0 0 644 capabilities=0x0
 vendor/etc/.tp 0 2000 755 capabilities=0x0
 vendor/etc/.tp/.ht120.mtc 0 0 644 capabilities=0x0
 vendor/etc/.tp/thermal.conf 0 0 644 capabilities=0x0

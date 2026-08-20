@@ -211,6 +211,7 @@
 /vendor/compatibility_matrix\.xml u:object_r:vendor_configs_file:s0
 /vendor/default\.prop u:object_r:vendor_file:s0
 /vendor/etc u:object_r:vendor_configs_file:s0
+/vendor/etc/cgroups\.json u:object_r:vendor_configs_file:s0
 /vendor/etc/\.tp u:object_r:vendor_configs_file:s0
 /vendor/etc/\.tp/\.ht120\.mtc u:object_r:vendor_configs_file:s0
 /vendor/etc/\.tp/thermal\.conf u:object_r:vendor_configs_file:s0
