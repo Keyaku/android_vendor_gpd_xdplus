@@ -19,7 +19,7 @@
 # because mke2fs only takes whole-MB journals and the OEM image carries a 6400 KB
 # one, so --verify compares the extracted trees and their metadata, not the bytes.
 #
-# Usage: build_vendor_image.sh [-o OUT.img] [--verify REFERENCE.img]
+# Usage: build_vendor_image.sh [-o OUT.img] [--verify REFERENCE.img] [--refresh-modules]
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -48,10 +48,12 @@ TIMESTAMP=1605968000
 
 OUT="$HERE/vendor.img"
 VERIFY=""
+REFRESH_MODULES=0
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-o|--out)   OUT="$2"; shift 2;;
 		--verify)   VERIFY="$2"; shift 2;;
+		--refresh-modules) REFRESH_MODULES=1; shift;;
 		*) echo "unknown arg: $1" >&2; exit 2;;
 	esac
 done
@@ -66,6 +68,52 @@ done
 for f in "$SRC" "$FS_CONFIG" "$FILE_CONTEXTS"; do
 	[ -e "$f" ] || { echo "ERROR: missing $f" >&2; exit 2; }
 done
+
+# Source-built modules that ship through this tree by hand copy, not by the AOSP
+# install rules. Nothing else compares the two, so a stale tracked copy bakes a
+# silently wrong image that still verifies byte-reproducible. Abort on a
+# mismatch; --refresh-modules copies the built one over instead.
+#
+# One entry per line: <path under proprietary/vendor>
+BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so"
+
+# Where the build leaves a module. First existing candidate wins: the staged
+# copy is authoritative, the soong intermediate is the fallback for a tree that
+# has had `make installclean` since the module was built.
+module_built_path() {
+	local rel="$1" base c
+	base=$(basename "$rel")
+	for c in \
+		"${XDOUT:-}/system/vendor/$rel" \
+		"${XDOUT:-}/obj/SHARED_LIBRARIES/${base%.so}_intermediates/$base"
+	do
+		[ -n "${XDOUT:-}" ] || return 1
+		[ -f "$c" ] && { echo "$c"; return 0; }
+	done
+	return 1
+}
+
+mod_rc=0
+while read -r rel; do
+	[ -n "$rel" ] || continue
+	tracked="$SRC/$rel"
+	[ -f "$tracked" ] || { echo "ERROR: tracked module missing: $tracked" >&2; mod_rc=1; continue; }
+	built=$(module_built_path "$rel") || continue   # not built here: not an error
+	if cmp -s "$built" "$tracked"; then
+		continue
+	fi
+	if [ "$REFRESH_MODULES" = 1 ]; then
+		cp -f "$built" "$tracked"
+		echo "refreshed $rel from $built"
+	else
+		echo "ERROR: tracked $rel differs from the built one" >&2
+		echo "       tracked: $tracked" >&2
+		echo "       built:   $built" >&2
+		echo "       re-run with --refresh-modules to take the built copy." >&2
+		mod_rc=1
+	fi
+done <<< "$BAKED_MODULES"
+[ "$mod_rc" = 0 ] || exit 2
 
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
