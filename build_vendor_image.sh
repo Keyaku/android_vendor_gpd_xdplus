@@ -83,9 +83,14 @@ BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so"
 module_built_path() {
 	local rel="$1" base c
 	base=$(basename "$rel")
+	# ⚠️ A compile_multilib:"both" module splits across two top-level dirs:
+	# 64-bit lands in obj/, 32-bit in obj_arm/. Miss the second and a lib/
+	# entry with no staged copy looks "not built here" and is skipped
+	# silently -- the exact drift this block exists to catch.
 	for c in \
 		"${XDOUT:-}/system/vendor/$rel" \
-		"${XDOUT:-}/obj/SHARED_LIBRARIES/${base%.so}_intermediates/$base"
+		"${XDOUT:-}/obj/SHARED_LIBRARIES/${base%.so}_intermediates/$base" \
+		"${XDOUT:-}/obj_arm/SHARED_LIBRARIES/${base%.so}_intermediates/$base"
 	do
 		[ -n "${XDOUT:-}" ] || return 1
 		[ -f "$c" ] && { echo "$c"; return 0; }
