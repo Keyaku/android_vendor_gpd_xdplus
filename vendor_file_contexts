@@ -355,6 +355,7 @@
 /vendor/firmware/mt6630_patch_e3_0_hdr\.bin u:object_r:vendor_file:s0
 /vendor/firmware/mt6630_patch_e3_1_hdr\.bin u:object_r:vendor_file:s0
 /vendor/firmware/rgx\.fw\.signed u:object_r:vendor_file:s0
+/vendor/firmware/rgx\.fw\.signed\.4\.40\.2\.51 u:object_r:vendor_file:s0
 /vendor/lib u:object_r:vendor_file:s0
 /vendor/lib/android\.hardware\.keymaster@3\.0\.so u:object_r:vendor_file:s0
 /vendor/lib/egl u:object_r:same_process_hal_file:s0

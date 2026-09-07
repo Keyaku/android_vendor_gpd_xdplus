@@ -75,7 +75,9 @@ done
 # mismatch; --refresh-modules copies the built one over instead.
 #
 # One entry per line: <path under proprietary/vendor>
-BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so"
+BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so
+lib/libdpframework.so
+lib64/libdpframework.so"
 
 # Where the build leaves a module. First existing candidate wins: the staged
 # copy is authoritative, the soong intermediate is the fallback for a tree that
@@ -97,6 +99,14 @@ module_built_path() {
 	done
 	return 1
 }
+
+# ⚠️ Without XDOUT nothing can be compared, and a silent skip is exactly the
+# stale-artifact bake this list exists to prevent. Refuse instead.
+if [ -z "${XDOUT:-}" ] && [ -n "$BAKED_MODULES" ]; then
+	echo "ERROR: XDOUT is unset, so no baked module can be checked against its build" >&2
+	echo "       source scripts/env.sh (xdplus.env alone does not set it)" >&2
+	exit 2
+fi
 
 mod_rc=0
 while read -r rel; do
