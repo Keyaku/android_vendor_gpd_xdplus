@@ -3,11 +3,13 @@
 // lives and what its soname is, which is the same question the rest of this
 // repo answers. The reconstruction's own sources stay in the device tree.
 //
-// Both are real vendor libraries with no soong module anywhere in the tree, so
-// a module naming them in shared_libs fails to link even though the runtime
-// resolves them without trouble. libdpframework.reconstruct needs both:
+// All three are real vendor libraries with no soong module anywhere in the
+// tree, so a module naming them in shared_libs fails to link even though the
+// runtime resolves them without trouble. libdpframework.reconstruct needs
 // libion_mtk for MediaTek's legacy ion entry points (mt_ion_open, ion_alloc_mm,
-// ion_custom_ioctl and the rest) and libm4u for the MTKM4UDrv methods.
+// ion_custom_ioctl and the rest) and libm4u for the MTKM4UDrv methods;
+// hwcomposer.recon needs libged for the ged_log_* and ged_query_info calls the
+// composer makes into GED.
 //
 // ⚠️ These are declarations, not installs. The blobs ship as part of the vendor
 // partition image that build_vendor_image.sh bakes from proprietary/vendor;
@@ -45,6 +47,22 @@ cc_prebuilt_library_shared {
 		},
 		arm64: {
 			srcs: ["proprietary/vendor/lib64/libm4u.so"],
+		},
+	},
+	strip: {
+		none: true,
+	},
+	check_elf_files: false,
+	installable: false,
+}
+
+cc_prebuilt_library_shared {
+	name: "libged",
+	proprietary: true,
+	compile_multilib: "64",
+	arch: {
+		arm64: {
+			srcs: ["proprietary/vendor/lib64/libged.so"],
 		},
 	},
 	strip: {
