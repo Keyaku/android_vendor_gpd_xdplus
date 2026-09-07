@@ -77,7 +77,9 @@ done
 # One entry per line: <path under proprietary/vendor>
 BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so
 lib/libdpframework.so
-lib64/libdpframework.so"
+lib64/libdpframework.so
+lib/libgralloc_extra.so
+lib64/libgralloc_extra.so"
 
 # Where the build leaves a module. First existing candidate wins: the staged
 # copy is authoritative, the soong intermediate is the fallback for a tree that
