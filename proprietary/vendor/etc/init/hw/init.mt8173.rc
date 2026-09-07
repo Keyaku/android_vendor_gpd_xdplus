@@ -760,10 +760,13 @@ service bluetoothd /system/bin/bluetoothd -n
 #	group gps system radio
 #	class main
 
-# IMG GPU init
+# IMG GPU init. The binary and its libsrv_init.so were never installed on this
+# device: pvrsrvkm is in-kernel and initialises services at probe. `disabled`
+# keeps init from failing this at every boot.
 service pvrsrvctl /vendor/bin/pvrsrvctl --no-module  --start
 	class core
 	user root
 	group root
 	oneshot
+	disabled
 
