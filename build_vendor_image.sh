@@ -76,6 +76,7 @@ done
 #
 # One entry per line: <path under proprietary/vendor>
 BAKED_MODULES="lib64/hw/hwcomposer.xdplus.so
+lib64/hw/hwcomposer.recon.so
 lib/libdpframework.so
 lib64/libdpframework.so
 lib/libgralloc_extra.so
