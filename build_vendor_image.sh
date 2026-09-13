@@ -62,7 +62,7 @@ done
 if [ -n "${XDROOT:-}" ] && [ -d "$XDROOT/out/host/linux-x86/bin" ]; then
 	PATH="$XDROOT/out/host/linux-x86/bin:$PATH"
 fi
-for t in e2fsdroid mke2fs debugfs e2fsck; do
+for t in e2fsdroid mke2fs debugfs e2fsck secilc; do
 	command -v "$t" >/dev/null || { echo "ERROR: $t not found (build the host tools, or set XDROOT)" >&2; exit 2; }
 done
 for f in "$SRC" "$FS_CONFIG" "$FILE_CONTEXTS"; do
@@ -186,9 +186,39 @@ cp "$FILE_CONTEXTS" "$WORK/fc"
 # the decoder, while both succeed under permissive.
 cat "$HERE/xdplus_sepolicy_addendum.cil" >> "$STAGE/etc/selinux/nonplat_sepolicy.cil"
 
-# The precompiled policy that ships beside it no longer matches, which is fine
-# and already the case: init logs "Failed to read ... .sha256" and compiles the
-# CIL set at every boot on this device.
+# Precompile the whole CIL set here, exactly as init would at boot. Without this
+# init compiles it on every cold boot and that costs 1.8 s.
+#
+# The three sha256 files beside it are init's own gate: it loads the precompiled
+# policy only when all three match the system's, so a system built after this
+# image simply compiles again. The win can go stale; the boot cannot break.
+#
+# ⚠️ The OEM's own precompiled_sepolicy is overwritten here -- it was compiled
+# against an Android 8 system and no Android 11 init could ever have loaded it.
+# Its Android-8-named hash file is left alone; nothing reads it.
+SEPDIR="$STAGE/etc/selinux"
+SYSOUT="$XDOUT/system"
+VERS=$(cat "$SEPDIR/plat_sepolicy_vers.txt")
+# Argument order and flags mirror system/core/init/selinux.cpp exactly. -c 30 is
+# POLICYVERS. Optional inputs are appended only when they exist, as init does.
+secilc_args=( "$SYSOUT/etc/selinux/plat_sepolicy.cil" -m -M true -G -N -c 30
+	"$SYSOUT/etc/selinux/mapping/$VERS.cil"
+	-o "$SEPDIR/precompiled_sepolicy" -f /dev/null )
+for f in "$SYSOUT/etc/selinux/mapping/$VERS.compat.cil" \
+	"$SYSOUT/system_ext/etc/selinux/system_ext_sepolicy.cil" \
+	"$SYSOUT/system_ext/etc/selinux/mapping/$VERS.cil" \
+	"$SYSOUT/product/etc/selinux/product_sepolicy.cil" \
+	"$SYSOUT/product/etc/selinux/mapping/$VERS.cil"; do
+	[ -f "$f" ] && secilc_args+=( "$f" )
+done
+secilc_args+=( "$SEPDIR/nonplat_sepolicy.cil" )
+secilc "${secilc_args[@]}"
+cp "$SYSOUT/etc/selinux/plat_sepolicy_and_mapping.sha256" \
+	"$SEPDIR/precompiled_sepolicy.plat_sepolicy_and_mapping.sha256"
+cp "$SYSOUT/system_ext/etc/selinux/system_ext_sepolicy_and_mapping.sha256" \
+	"$SEPDIR/precompiled_sepolicy.system_ext_sepolicy_and_mapping.sha256"
+cp "$SYSOUT/product/etc/selinux/product_sepolicy_and_mapping.sha256" \
+	"$SEPDIR/precompiled_sepolicy.product_sepolicy_and_mapping.sha256"
 
 rm -f "$OUT"
 echo "baking $OUT from $SRC ..."
