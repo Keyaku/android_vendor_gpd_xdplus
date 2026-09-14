@@ -80,7 +80,13 @@ lib64/hw/hwcomposer.recon.so
 lib/libdpframework.so
 lib64/libdpframework.so
 lib/libgralloc_extra.so
-lib64/libgralloc_extra.so"
+lib64/libgralloc_extra.so
+lib/hw/android.hardware.light@2.0-impl.so
+lib64/hw/android.hardware.light@2.0-impl.so
+lib/hw/android.hardware.memtrack@1.0-impl.so
+lib64/hw/android.hardware.memtrack@1.0-impl.so
+lib/hw/audio.usb.default.so
+lib64/hw/audio.usb.default.so"
 
 # Where the build leaves a module. First existing candidate wins: the staged
 # copy is authoritative, the soong intermediate is the fallback for a tree that

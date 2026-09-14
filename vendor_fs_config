@@ -375,7 +375,7 @@ vendor/lib/hw/android.hardware.graphics.allocator@2.0-impl.so 0 0 644 capabiliti
 vendor/lib/hw/android.hardware.graphics.composer@2.1-impl.so 0 0 644 capabilities=0x0
 vendor/lib/hw/android.hardware.graphics.mapper@2.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib/hw/android.hardware.keymaster@3.0-impl.so 0 0 644 capabilities=0x0
-vendor/lib/hw/android.hardware.light@2.0-impl-mediatek.so 0 0 644 capabilities=0x0
+vendor/lib/hw/android.hardware.light@2.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib/hw/android.hardware.memtrack@1.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib/hw/android.hardware.sensors@1.0-impl-mediatek.so 0 0 644 capabilities=0x0
 vendor/lib/hw/audio.primary.mt8173.so 0 0 644 capabilities=0x0
@@ -555,7 +555,7 @@ vendor/lib64/hw/android.hardware.graphics.allocator@2.0-impl.so 0 0 644 capabili
 vendor/lib64/hw/android.hardware.graphics.composer@2.1-impl.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/android.hardware.keymaster@3.0-impl.so 0 0 644 capabilities=0x0
-vendor/lib64/hw/android.hardware.light@2.0-impl-mediatek.so 0 0 644 capabilities=0x0
+vendor/lib64/hw/android.hardware.light@2.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/android.hardware.memtrack@1.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/android.hardware.sensors@1.0-impl-mediatek.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/audio.primary.mt8173.so 0 0 644 capabilities=0x0

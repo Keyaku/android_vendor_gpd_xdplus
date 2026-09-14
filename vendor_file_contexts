@@ -375,7 +375,7 @@
 /vendor/lib/hw/android\.hardware\.graphics\.composer@2\.1-impl\.so u:object_r:vendor_file:s0
 /vendor/lib/hw/android\.hardware\.graphics\.mapper@2\.0-impl\.so u:object_r:same_process_hal_file:s0
 /vendor/lib/hw/android\.hardware\.keymaster@3\.0-impl\.so u:object_r:vendor_file:s0
-/vendor/lib/hw/android\.hardware\.light@2\.0-impl-mediatek\.so u:object_r:vendor_file:s0
+/vendor/lib/hw/android\.hardware\.light@2\.0-impl\.so u:object_r:vendor_file:s0
 /vendor/lib/hw/android\.hardware\.memtrack@1\.0-impl\.so u:object_r:vendor_file:s0
 /vendor/lib/hw/android\.hardware\.renderscript@1\.0-impl\.so u:object_r:same_process_hal_file:s0
 /vendor/lib/hw/android\.hardware\.sensors@1\.0-impl-mediatek\.so u:object_r:vendor_file:s0
@@ -559,7 +559,7 @@
 /vendor/lib64/hw/android\.hardware\.graphics\.composer@2\.1-impl\.so u:object_r:vendor_file:s0
 /vendor/lib64/hw/android\.hardware\.graphics\.mapper@2\.0-impl\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/hw/android\.hardware\.keymaster@3\.0-impl\.so u:object_r:vendor_file:s0
-/vendor/lib64/hw/android\.hardware\.light@2\.0-impl-mediatek\.so u:object_r:vendor_file:s0
+/vendor/lib64/hw/android\.hardware\.light@2\.0-impl\.so u:object_r:vendor_file:s0
 /vendor/lib64/hw/android\.hardware\.memtrack@1\.0-impl\.so u:object_r:vendor_file:s0
 /vendor/lib64/hw/android\.hardware\.renderscript@1\.0-impl\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/hw/android\.hardware\.sensors@1\.0-impl-mediatek\.so u:object_r:vendor_file:s0
